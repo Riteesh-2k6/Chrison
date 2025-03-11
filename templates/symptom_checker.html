@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chiron - Symptom Checker</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="/static/styles.css">
+    <style>
+        :root {
+            --text-primary: #2c3e50;
+            --text-secondary: #34495e;
+            --text-muted: #7f8c8d;
+            --border-color: #e2e8f0;
+            --primary-color: #3498db;
+            --secondary-color: #2ecc71;
+        }
+
+        .symptom-form {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            padding: 2.5rem;
+            border-radius: 20px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+        }
+
+        .symptom-form textarea {
+            width: 100%;
+            padding: 1.25rem;
+            border: 2px solid var(--border-color);
+            border-radius: 12px;
+            margin-bottom: 1.5rem;
+            font-family: inherit;
+            font-size: 1rem;
+            line-height: 1.6;
+            resize: vertical;
+            min-height: 160px;
+            transition: all 0.3s ease;
+        }
+
+        .symptom-form textarea:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
+        }
+
+        .submit-btn {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            padding: 1.2rem 2rem;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            width: 100%;
+            font-size: 1.1rem;
+            font-weight: 500;
+            letter-spacing: 0.01em;
+        }
+
+        .submit-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(52, 152, 219, 0.2);
+        }
+
+        .submit-btn:disabled {
+            opacity: 0.7;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .result-container {
+            margin-top: 2.5rem;
+            display: none;
+            max-width: 800px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .result-container.visible {
+            display: block;
+            animation: fadeIn 0.5s ease;
+        }
+
+        .back-btn {
+            display: inline-flex;
+            align-items: center;
+            padding: 0.75rem 1.25rem;
+            color: var(--text-primary);
+            text-decoration: none;
+            margin-bottom: 1.5rem;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            font-weight: 500;
+        }
+
+        .back-btn:hover {
+            background: rgba(0, 0, 0, 0.05);
+        }
+
+        .back-btn i {
+            margin-right: 0.75rem;
+            font-size: 1.1rem;
+        }
+
+        .header {
+            text-align: center;
+            padding: 3rem 2rem;
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            border-radius: 0 0 30px 30px;
+            margin-bottom: 2.5rem;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .header h1 {
+            font-size: 2.75rem;
+            font-weight: 600;
+            margin: 0 0 1rem;
+            letter-spacing: -0.03em;
+        }
+
+        .header p {
+            font-size: 1.25rem;
+            opacity: 0.95;
+            margin: 0;
+            font-weight: 300;
+        }
+
+        .analysis-result {
+            background: white;
+            padding: 2rem;
+            border-radius: 16px;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+        }
+
+        .result-header {
+            color: var(--text-primary);
+            font-size: 1.75rem;
+            font-weight: 600;
+            margin-bottom: 1.5rem;
+            letter-spacing: -0.02em;
+        }
+
+        .disclaimer {
+            margin-top: 2rem;
+            padding: 1.5rem;
+            background: #fff3cd;
+            border-radius: 12px;
+            color: #856404;
+            font-size: 0.95rem;
+            line-height: 1.6;
+        }
+
+        .symptoms-guide {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            margin-top: 0.5rem;
+            line-height: 1.5;
+        }
+
+        #loadingSpinner {
+            display: none;
+            text-align: center;
+            margin: 2rem 0;
+        }
+
+        .spinner {
+            border: 4px solid var(--border-color);
+            border-top: 4px solid var(--primary-color);
+            border-radius: 50%;
+            width: 48px;
+            height: 48px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto;
+        }
+
+        .spinner-text {
+            margin-top: 1rem;
+            color: var(--text-secondary);
+            font-size: 1.1rem;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        @media (max-width: 768px) {
+            .symptom-form {
+                padding: 1.5rem;
+                margin: 1rem;
+            }
+
+            .header {
+                padding: 2rem 1.5rem;
+            }
+
+            .header h1 {
+                font-size: 2rem;
+            }
+
+            .result-container {
+                margin: 1.5rem;
+            }
+
+            .symptom-form textarea {
+                min-height: 120px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="/" class="back-btn">
+            <i class="fas fa-arrow-left"></i>Back to Home
+        </a>
+
+        <header class="header">
+            <h1>Symptom Checker</h1>
+            <p>Get an AI-powered analysis of your symptoms and potential health conditions</p>
+        </header>
+
+        <div class="symptom-form">
+            <textarea id="symptomsInput" placeholder="Please describe your symptoms in detail..."></textarea>
+            <p class="symptoms-guide">Include important details such as:
+                • When the symptoms started
+                • How severe they are
+                • Any triggers or patterns you've noticed
+                • Related symptoms or conditions
+            </p>
+            <button id="submitBtn" class="submit-btn">Analyze Symptoms</button>
+            
+            <div id="loadingSpinner">
+                <div class="spinner"></div>
+                <p class="spinner-text">Analyzing your symptoms...</p>
+            </div>
+        </div>
+
+        <div id="resultContainer" class="result-container">
+            <h2 class="result-header">Analysis Results</h2>
+            <div id="analysisResult" class="analysis-result"></div>
+            <div class="disclaimer">
+                <p><strong>Important Medical Notice:</strong> This AI-powered analysis is for informational purposes only and should not be considered as medical advice or diagnosis. The analysis is based on the symptoms you've described, but many conditions can share similar symptoms. Always consult with a qualified healthcare professional for proper medical evaluation, diagnosis, and treatment recommendations.</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('submitBtn').addEventListener('click', async () => {
+            const symptoms = document.getElementById('symptomsInput').value.trim();
+            if (!symptoms) {
+                alert('Please describe your symptoms to receive an analysis.');
+                return;
+            }
+
+            // Show loading spinner
+            document.getElementById('loadingSpinner').style.display = 'block';
+            document.getElementById('submitBtn').disabled = true;
+            document.getElementById('resultContainer').style.display = 'none';
+
+            try {
+                const response = await fetch('/symptom-checker', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ symptoms })
+                });
+
+                const data = await response.json();
+                
+                // Display results
+                document.getElementById('analysisResult').innerHTML = `
+                    <div class="analysis-content">
+                        ${data.result}
+                    </div>
+                `;
+                document.getElementById('resultContainer').style.display = 'block';
+                document.getElementById('resultContainer').classList.add('visible');
+            } catch (error) {
+                console.error('Error:', error);
+                alert('An error occurred while analyzing your symptoms. Please try again.');
+            } finally {
+                // Hide loading spinner and enable submit button
+                document.getElementById('loadingSpinner').style.display = 'none';
+                document.getElementById('submitBtn').disabled = false;
+            }
+        });
+    </script>
+</body>
+</html>

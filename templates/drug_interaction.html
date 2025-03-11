@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chiron - Drug Interaction Checker</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="/static/styles.css">
+    <style>
+        :root {
+            --text-primary: #2c3e50;
+            --text-secondary: #34495e;
+            --text-muted: #7f8c8d;
+            --border-color: #e2e8f0;
+            --success-color: #27ae60;
+            --warning-color: #f39c12;
+            --danger-color: #e74c3c;
+            --primary-color: #3498db;
+            --secondary-color: #2ecc71;
+        }
+
+        .interaction-form {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            padding: 2.5rem;
+            border-radius: 20px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+        }
+
+        .input-group {
+            margin-bottom: 2rem;
+        }
+
+        .input-group label {
+            display: block;
+            margin-bottom: 0.75rem;
+            color: var(--text-primary);
+            font-weight: 500;
+            font-size: 1.1rem;
+        }
+
+        .input-group input {
+            width: 100%;
+            padding: 1rem;
+            border: 2px solid var(--border-color);
+            border-radius: 12px;
+            font-family: inherit;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .input-group input:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(20, 129, 238, 0.1);
+        }
+
+        .submit-btn {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            padding: 1.2rem 2rem;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            width: 100%;
+            font-size: 1.1rem;
+            font-weight: 500;
+            letter-spacing: 0.01em;
+        }
+
+        .submit-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(20, 129, 238, 0.2);
+        }
+
+        .submit-btn:disabled {
+            opacity: 0.7;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .result-container {
+            margin-top: 2.5rem;
+            display: none;
+            max-width: 800px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .result-container.visible {
+            display: block;
+            animation: fadeIn 0.5s ease;
+        }
+
+        .interaction-result {
+            background: white;
+            padding: 2rem;
+            border-radius: 16px;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+        }
+
+        .interaction-result.high {
+            border-left: 4px solid var(--danger-color);
+        }
+
+        .interaction-result.moderate {
+            border-left: 4px solid var(--warning-color);
+        }
+
+        .interaction-result.low {
+            border-left: 4px solid var(--success-color);
+        }
+
+        .back-btn {
+            display: inline-flex;
+            align-items: center;
+            padding: 0.75rem 1.25rem;
+            color: var(--text-primary);
+            text-decoration: none;
+            margin-bottom: 1.5rem;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            font-weight: 500;
+        }
+
+        .back-btn:hover {
+            background: rgba(0, 0, 0, 0.05);
+        }
+
+        .back-btn i {
+            margin-right: 0.75rem;
+            font-size: 1.1rem;
+        }
+
+        #loadingSpinner {
+            display: none;
+            text-align: center;
+            margin: 2rem 0;
+        }
+
+        .spinner {
+            border: 4px solid var(--border-color);
+            border-top: 4px solid var(--primary-color);
+            border-radius: 50%;
+            width: 48px;
+            height: 48px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto;
+        }
+
+        .spinner-text {
+            margin-top: 1rem;
+            color: var(--text-secondary);
+            font-size: 1.1rem;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .ai-analysis {
+            margin-top: 2rem;
+            padding: 2rem;
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            border-radius: 16px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+            color: white;
+        }
+
+        .ai-analysis h3 {
+            color: white;
+            margin-bottom: 1.5rem;
+            font-size: 1.3rem;
+            font-weight: 600;
+        }
+
+        .disclaimer {
+            margin-top: 2rem;
+            padding: 1.5rem;
+            background: #fff3cd;
+            border-radius: 12px;
+            color: #856404;
+            font-size: 0.95rem;
+            line-height: 1.6;
+        }
+
+        .result-header {
+            color: var(--text-primary);
+            font-size: 1.75rem;
+            font-weight: 600;
+            margin-bottom: 1.5rem;
+            letter-spacing: -0.02em;
+        }
+
+        .severity-badge {
+            display: inline-block;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            color: white;
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+        }
+
+        .header {
+            text-align: center;
+            padding: 3rem 2rem;
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            border-radius: 0 0 30px 30px;
+            margin-bottom: 2.5rem;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .header h1 {
+            font-size: 2.75rem;
+            font-weight: 600;
+            margin: 0 0 1rem;
+            letter-spacing: -0.03em;
+        }
+
+        .header p {
+            font-size: 1.25rem;
+            opacity: 0.95;
+            margin: 0;
+            font-weight: 300;
+        }
+
+        @media (max-width: 768px) {
+            .interaction-form {
+                padding: 1.5rem;
+                margin: 1rem;
+            }
+
+            .header {
+                padding: 2rem 1.5rem;
+            }
+
+            .header h1 {
+                font-size: 2rem;
+            }
+
+            .result-container {
+                margin: 1.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="/" class="back-btn">
+            <i class="fas fa-arrow-left"></i>Back to Home
+        </a>
+
+        <header class="header">
+            <h1>Drug Interaction Checker</h1>
+            <p>Analyze potential interactions between medications for safer healthcare decisions</p>
+        </header>
+
+        <div class="interaction-form">
+            <div class="input-group">
+                <label for="drug1">First Medication</label>
+                <input type="text" id="drug1" placeholder="Enter the name of the first medication">
+            </div>
+
+            <div class="input-group">
+                <label for="drug2">Second Medication</label>
+                <input type="text" id="drug2" placeholder="Enter the name of the second medication">
+            </div>
+
+            <button id="submitBtn" class="submit-btn">Check Interaction</button>
+            
+            <div id="loadingSpinner">
+                <div class="spinner"></div>
+                <p class="spinner-text">Analyzing potential interactions...</p>
+            </div>
+        </div>
+
+        <div id="resultContainer" class="result-container">
+            <h2 class="result-header">Interaction Analysis</h2>
+            <div id="dbResult" class="interaction-result">
+                <!-- Content will be dynamically added here -->
+            </div>
+            <div id="aiResult" class="ai-analysis">
+                <h3>AI-Powered Analysis</h3>
+                <div id="aiAnalysisContent"></div>
+            </div>
+            <div class="disclaimer">
+                <p><strong>Important:</strong> This information is for reference purposes only and should not replace professional medical advice. Always consult with your healthcare provider or pharmacist about potential drug interactions and medication safety.</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('submitBtn').addEventListener('click', async () => {
+            const drug1 = document.getElementById('drug1').value.trim();
+            const drug2 = document.getElementById('drug2').value.trim();
+
+            if (!drug1 || !drug2) {
+                alert('Please enter both medications to check their interaction.');
+                return;
+            }
+
+            // Show loading spinner
+            document.getElementById('loadingSpinner').style.display = 'block';
+            document.getElementById('submitBtn').disabled = true;
+            document.getElementById('resultContainer').style.display = 'none';
+
+            try {
+                const response = await fetch('/drug-interaction', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ drug1, drug2 })
+                });
+
+                const data = await response.json();
+                
+                // Display database results
+                const dbResultDiv = document.getElementById('dbResult');
+                if (data.database_result) {
+                    const severity = data.database_result.severity?.toLowerCase() || 'unknown';
+                    dbResultDiv.className = `interaction-result ${severity}`;
+                    
+                    let content = `
+                        <div class="severity-badge ${severity}">
+                            ${severity.charAt(0).toUpperCase() + severity.slice(1)} Risk
+                        </div>
+                        <h3>${drug1} + ${drug2}</h3>
+                        <p><strong>Effect:</strong> ${data.database_result.effect || 'No specific effect information available.'}</p>
+                        <p><strong>Recommendation:</strong> ${data.database_result.recommendation || 'Consult with your healthcare provider.'}</p>
+                    `;
+                    dbResultDiv.innerHTML = content;
+                } else {
+                    dbResultDiv.className = 'interaction-result';
+                    dbResultDiv.innerHTML = `
+                        <p>No known interactions found in our database between ${drug1} and ${drug2}.</p>
+                        <p>However, this does not guarantee that no interactions exist.</p>
+                    `;
+                }
+
+                // Display AI analysis
+                const aiContentDiv = document.getElementById('aiAnalysisContent');
+                if (data.ai_result) {
+                    aiContentDiv.innerHTML = `<p>${data.ai_result}</p>`;
+                } else {
+                    aiContentDiv.innerHTML = '<p>AI analysis is currently unavailable.</p>';
+                }
+
+                // Show results
+                document.getElementById('resultContainer').style.display = 'block';
+                document.getElementById('resultContainer').classList.add('visible');
+            } catch (error) {
+                console.error('Error:', error);
+                alert('An error occurred while checking drug interactions. Please try again.');
+            } finally {
+                // Hide loading spinner and enable submit button
+                document.getElementById('loadingSpinner').style.display = 'none';
+                document.getElementById('submitBtn').disabled = false;
+            }
+        });
+    </script>
+</body>
+</html>

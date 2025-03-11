@@ -1,0 +1,447 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chiron - Personalized Medication</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="/static/styles.css">
+    <style>
+        :root {
+            --text-primary: #2c3e50;
+            --text-secondary: #34495e;
+            --text-muted: #7f8c8d;
+            --border-color: #e2e8f0;
+            --warning-color: #f39c12;
+            --warning-bg: #fff3cd;
+            --tag-bg: #f1f5f9;
+            --primary-color: #1489e8;
+            --secondary-color: #20b2e8;
+        }
+
+        .medication-form {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            padding: 2.5rem;
+            border-radius: 20px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+        }
+
+        .input-group {
+            margin-bottom: 2rem;
+        }
+
+        .input-group label {
+            display: block;
+            margin-bottom: 0.75rem;
+            color: var(--text-primary);
+            font-weight: 500;
+            font-size: 1.1rem;
+        }
+
+        .input-group input {
+            width: 100%;
+            padding: 1rem;
+            border: 2px solid var(--border-color);
+            border-radius: 12px;
+            font-family: inherit;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .input-group input:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(20, 129, 238, 0.1);
+        }
+
+        .tag-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin-top: 0.5rem;
+        }
+
+        .tag {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 1rem;
+            background: var(--tag-bg);
+            border-radius: 20px;
+            font-size: 0.9rem;
+            color: var(--text-primary);
+        }
+
+        .tag button {
+            background: none;
+            border: none;
+            padding: 0;
+            cursor: pointer;
+            color: var(--text-muted);
+            display: flex;
+            align-items: center;
+            font-size: 1rem;
+        }
+
+        .tag button:hover {
+            color: var(--text-primary);
+        }
+
+        .result-container {
+            margin-top: 2.5rem;
+            display: none;
+            max-width: 800px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .result-container.visible {
+            display: block;
+            animation: fadeIn 0.5s ease;
+        }
+
+        .recommendation-card {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            padding: 2rem;
+            border-radius: 16px;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+        }
+
+        .recommendation-card h3 {
+            color: white;
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+            font-weight: 600;
+        }
+
+        .recommendation-card p {
+            color: rgba(255, 255, 255, 0.9);
+            line-height: 1.6;
+            margin-bottom: 1rem;
+        }
+
+        .interaction-warning {
+            margin-top: 1rem;
+            padding: 1rem;
+            background: var(--warning-bg);
+            border-radius: 12px;
+            color: var(--warning-color);
+            font-size: 0.95rem;
+        }
+
+        .disclaimer {
+            margin-top: 2rem;
+            padding: 1.5rem;
+            background: var(--warning-bg);
+            border-radius: 12px;
+            color: #856404;
+            font-size: 0.95rem;
+            line-height: 1.6;
+        }
+
+        #loadingSpinner {
+            display: none;
+            text-align: center;
+            margin: 2rem 0;
+        }
+
+        .spinner {
+            border: 4px solid var(--border-color);
+            border-top: 4px solid var(--primary-color);
+            border-radius: 50%;
+            width: 48px;
+            height: 48px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto;
+        }
+
+        .spinner-text {
+            margin-top: 1rem;
+            color: var(--text-secondary);
+            font-size: 1.1rem;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .submit-btn {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            padding: 1.2rem 2rem;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            width: 100%;
+            font-size: 1.1rem;
+            font-weight: 500;
+            letter-spacing: 0.01em;
+        }
+
+        .submit-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(20, 129, 238, 0.2);
+        }
+
+        .submit-btn:disabled {
+            opacity: 0.7;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .header {
+            text-align: center;
+            padding: 3rem 2rem;
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            border-radius: 0 0 30px 30px;
+            margin-bottom: 2.5rem;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .header h1 {
+            font-size: 2.75rem;
+            font-weight: 600;
+            margin: 0 0 1rem;
+            letter-spacing: -0.03em;
+        }
+
+        .header p {
+            font-size: 1.25rem;
+            opacity: 0.95;
+            margin: 0;
+            font-weight: 300;
+        }
+
+        .result-header {
+            color: var(--text-primary);
+            font-size: 1.75rem;
+            font-weight: 600;
+            margin-bottom: 1.5rem;
+            letter-spacing: -0.02em;
+        }
+
+        .input-hint {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            margin-top: 0.5rem;
+        }
+
+        @media (max-width: 768px) {
+            .medication-form {
+                padding: 1.5rem;
+                margin: 1rem;
+            }
+
+            .header {
+                padding: 2rem 1.5rem;
+            }
+
+            .header h1 {
+                font-size: 2rem;
+            }
+
+            .result-container {
+                margin: 1.5rem;
+            }
+
+            .tag-container {
+                gap: 0.5rem;
+            }
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="/" class="back-btn">
+            <i class="fas fa-arrow-left"></i>Back to Home
+        </a>
+
+        <header class="header">
+            <h1>Personalized Medication</h1>
+            <p>Get AI-powered medication recommendations tailored to your specific health profile</p>
+        </header>
+
+        <div class="medication-form">
+            <div class="input-group">
+                <label for="condition">Medical Condition</label>
+                <textarea id="condition" placeholder="Please describe your medical condition, symptoms, and any relevant medical history..."></textarea>
+                <p class="input-hint">Include details about severity, duration, and any previous treatments that have or haven't worked.</p>
+            </div>
+
+            <div class="input-group">
+                <label for="allergies">Known Allergies</label>
+                <input type="text" id="allergyInput" placeholder="Type an allergy and press Enter">
+                <p class="input-hint">Include any drug allergies, sensitivities, or adverse reactions you've experienced.</p>
+                <div id="allergyTags" class="tag-container"></div>
+            </div>
+
+            <div class="input-group">
+                <label for="medications">Current Medications</label>
+                <input type="text" id="medicationInput" placeholder="Type a medication and press Enter">
+                <p class="input-hint">List all medications you're currently taking, including supplements and over-the-counter drugs.</p>
+                <div id="medicationTags" class="tag-container"></div>
+            </div>
+
+            <button id="submitBtn" class="submit-btn">Get Personalized Recommendations</button>
+            
+            <div id="loadingSpinner">
+                <div class="spinner"></div>
+                <p class="spinner-text">Analyzing your health profile and generating recommendations...</p>
+            </div>
+        </div>
+
+        <div id="resultContainer" class="result-container">
+            <h2 class="result-header">Your Personalized Recommendations</h2>
+            <div id="recommendationsContent" class="recommendations"></div>
+            <div id="interactionsContent" class="interactions-warning" style="display: none;"></div>
+            <div class="disclaimer">
+                <p><strong>Important Medical Notice:</strong> These medication recommendations are generated based on the information you provided and are for reference purposes only. They should not replace professional medical advice. Always consult with a qualified healthcare provider before starting, stopping, or changing any medication regimen. Your healthcare provider can consider your complete medical history and perform necessary examinations to determine the most appropriate treatment plan for your specific situation.</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        class TagManager {
+            constructor(inputId, containerId) {
+                this.input = document.getElementById(inputId);
+                this.container = document.getElementById(containerId);
+                this.tags = new Set();
+
+                this.input.addEventListener('keydown', (e) => {
+                    if (e.key === 'Enter') {
+                        e.preventDefault();
+                        this.addTag();
+                    }
+                });
+            }
+
+            addTag() {
+                const value = this.input.value.trim();
+                if (value && !this.tags.has(value)) {
+                    this.tags.add(value);
+                    this.renderTags();
+                }
+                this.input.value = '';
+            }
+
+            removeTag(tag) {
+                this.tags.delete(tag);
+                this.renderTags();
+            }
+
+            renderTags() {
+                this.container.innerHTML = '';
+                this.tags.forEach(tag => {
+                    const tagElement = document.createElement('div');
+                    tagElement.className = 'tag';
+                    tagElement.innerHTML = `
+                        ${tag}
+                        <button onclick="event.stopPropagation(); ${this.container.id}Manager.removeTag('${tag}')">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    `;
+                    this.container.appendChild(tagElement);
+                });
+            }
+
+            getTags() {
+                return Array.from(this.tags);
+            }
+        }
+
+        const allergyManager = new TagManager('allergyInput', 'allergyTags');
+        const medicationManager = new TagManager('medicationInput', 'medicationTags');
+
+        document.getElementById('submitBtn').addEventListener('click', async () => {
+            const condition = document.getElementById('condition').value.trim();
+            if (!condition) {
+                alert('Please describe your medical condition to receive personalized recommendations.');
+                return;
+            }
+
+            // Show loading spinner
+            document.getElementById('loadingSpinner').style.display = 'block';
+            document.getElementById('submitBtn').disabled = true;
+            document.getElementById('resultContainer').style.display = 'none';
+
+            try {
+                const response = await fetch('/personalized-medication', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        condition: condition,
+                        allergies: allergyManager.getTags(),
+                        current_medications: medicationManager.getTags()
+                    })
+                });
+
+                const data = await response.json();
+                
+                // Display recommendations
+                document.getElementById('recommendationsContent').innerHTML = `
+                    <div class="recommendations-content">
+                        ${data.recommendations}
+                    </div>
+                `;
+
+                // Display interactions if any
+                const interactionsDiv = document.getElementById('interactionsContent');
+                if (Object.keys(data.interactions).length > 0) {
+                    let interactionsHtml = '<h3>Potential Drug Interactions</h3><ul>';
+                    for (const [drug, interactions] of Object.entries(data.interactions)) {
+                        interactionsHtml += `
+                            <li>
+                                <strong>${drug}:</strong>
+                                <ul>
+                                    ${interactions.map(int => `<li>${int.description}</li>`).join('')}
+                                </ul>
+                            </li>
+                        `;
+                    }
+                    interactionsHtml += '</ul>';
+                    interactionsDiv.innerHTML = interactionsHtml;
+                    interactionsDiv.style.display = 'block';
+                } else {
+                    interactionsDiv.style.display = 'none';
+                }
+
+                // Show results
+                document.getElementById('resultContainer').style.display = 'block';
+                document.getElementById('resultContainer').classList.add('visible');
+            } catch (error) {
+                console.error('Error:', error);
+                alert('An error occurred while generating recommendations. Please try again.');
+            } finally {
+                // Hide loading spinner and enable submit button
+                document.getElementById('loadingSpinner').style.display = 'none';
+                document.getElementById('submitBtn').disabled = false;
+            }
+        });
+
+        // Make the tag managers globally accessible
+        window.allergyTagsManager = allergyManager;
+        window.medicationTagsManager = medicationManager;
+    </script>
+</body>
+</html>

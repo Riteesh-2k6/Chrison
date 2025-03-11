@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chiron Healthcare Assistant</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="/static/styles.css">
+    <style>
+        :root {
+            --text-primary: #2c3e50;
+            --text-secondary: #34495e;
+            --text-muted: #7f8c8d;
+        }
+
+        .modules-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 2.5rem;
+            padding: 2.5rem;
+            max-width: 1400px;
+            margin: 0 auto;
+            opacity: 1;
+            animation: fadeIn 0.5s ease;
+        }
+
+        .module-card {
+            background: white;
+            border-radius: 20px;
+            padding: 2.5rem;
+            text-align: left;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        .module-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .module-card i {
+            font-size: 2.5rem;
+            color: var(--primary-color);
+            margin-bottom: 0.5rem;
+        }
+
+        .module-card h3 {
+            color: var(--text-primary);
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin: 0;
+            letter-spacing: -0.02em;
+            line-height: 1.3;
+        }
+
+        .module-card p {
+            color: var(--text-secondary);
+            font-size: 1rem;
+            line-height: 1.6;
+            margin: 0;
+            font-weight: 400;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .header {
+            text-align: center;
+            padding: 3rem 2rem;
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            border-radius: 0 0 30px 30px;
+            margin-bottom: 2rem;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .header h1 {
+            font-size: 2.75rem;
+            font-weight: 600;
+            margin: 0 0 1rem;
+            letter-spacing: -0.03em;
+            line-height: 1.2;
+            color: white;
+        }
+
+        .header p {
+            font-size: 1.25rem;
+            opacity: 0.95;
+            margin: 0;
+            font-weight: 300;
+            letter-spacing: 0.01em;
+            color: rgba(255, 255, 255, 0.95);
+        }
+
+        .icon-wrapper {
+            display: inline-block;
+            padding: 1rem;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+            margin-bottom: 0.5rem;
+            color: white;
+        }
+
+        .card-content {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+
+        @media (max-width: 768px) {
+            .modules-container {
+                padding: 1.5rem;
+                gap: 1.5rem;
+            }
+
+            .module-card {
+                padding: 2rem;
+            }
+
+            .header {
+                padding: 2rem 1.5rem;
+            }
+
+            .header h1 {
+                font-size: 2rem;
+            }
+
+            .header p {
+                font-size: 1.1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <h1>Chiron Healthcare Assistant</h1>
+            <p>Your intelligent medical companion for personalized healthcare</p>
+        </header>
+
+        <div class="modules-container">
+            <div class="module-card" onclick="window.location.href='/symptom-checker'">
+                <div class="icon-wrapper">
+                    <i class="fas fa-stethoscope"></i>
+                </div>
+                <div class="card-content">
+                    <h3>Symptom Checker</h3>
+                    <p>Get instant AI-powered analysis of your symptoms and understand potential health conditions.</p>
+                </div>
+            </div>
+
+            <div class="module-card" onclick="window.location.href='/drug-interaction'">
+                <div class="icon-wrapper">
+                    <i class="fas fa-pills"></i>
+                </div>
+                <div class="card-content">
+                    <h3>Drug Interaction</h3>
+                    <p>Ensure your medications work safely together by checking for potential interactions and risks.</p>
+                </div>
+            </div>
+
+            <div class="module-card" onclick="window.location.href='/personalized-medication'">
+                <div class="icon-wrapper">
+                    <i class="fas fa-clipboard-list"></i>
+                </div>
+                <div class="card-content">
+                    <h3>Personalized Medication</h3>
+                    <p>Receive tailored medication recommendations based on your specific condition and health profile.</p>
+                </div>
+            </div>
+
+            <div class="module-card" onclick="window.location.href='/hospital-locator'">
+                <div class="icon-wrapper">
+                    <i class="fas fa-hospital"></i>
+                </div>
+                <div class="card-content">
+                    <h3>Hospital Locator</h3>
+                    <p>Find nearby hospitals, clinics, and pharmacies in your area.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

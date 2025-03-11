@@ -1,0 +1,241 @@
+:root {
+    --primary-color: #1481ee;
+    --secondary-color: #122e41;
+    --accent-color: #e74c3c;
+    --background-color: #f5f6fa;
+    --text-color: #2c3e50;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Poppins', sans-serif;
+}
+
+body {
+    background-color: var(--background-color);
+    color: var(--text-color);
+}
+
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 2rem;
+}
+
+.header {
+    text-align: center;
+    padding: 3rem 2rem;
+    margin-bottom: 2rem;
+    background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+    border-radius: 20px;
+    color: white;
+}
+
+.header h1 {
+    font-size: 2.5rem;
+    font-weight: 600;
+    margin-bottom: 1rem;
+    color: white;
+}
+
+.header p {
+    font-size: 1.1rem;
+    color: rgba(255, 255, 255, 0.9);
+    max-width: 800px;
+    margin: 0 auto;
+    line-height: 1.5;
+}
+
+.modules-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 2rem;
+    margin-top: 2rem;
+    opacity: 0;
+    transform: translateY(20px);
+    transition: all 0.5s ease;
+}
+
+.modules-container.visible {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.module-card {
+    background: white;
+    border-radius: 20px;
+    padding: 2rem;
+    text-decoration: none;
+    color: var(--text-color);
+    transition: all 0.3s ease;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+    min-height: 320px;
+}
+
+.module-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);
+}
+
+.module-card .icon {
+    font-size: 2rem;
+    margin-bottom: 1rem;
+    color: var(--secondary-color);
+}
+
+.module-card h3 {
+    font-size: 1.5rem;
+    font-weight: 600;
+    margin-bottom: 1rem;
+    color: var(--primary-color);
+}
+
+.module-card p {
+    color: #666;
+    line-height: 1.6;
+    margin-bottom: 1.5rem;
+    flex-grow: 1;
+}
+
+.back-btn {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.75rem 1.25rem;
+    color: var(--text-color);
+    text-decoration: none;
+    margin-bottom: 1.5rem;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+    font-weight: 500;
+}
+
+.back-btn:hover {
+    background: rgba(0, 0, 0, 0.05);
+}
+
+.back-btn i {
+    margin-right: 0.75rem;
+    font-size: 1.1rem;
+}
+
+.submit-btn {
+    background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+    color: white;
+    padding: 1.2rem 2rem;
+    border: none;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    width: 100%;
+    font-size: 1.1rem;
+    font-weight: 500;
+    letter-spacing: 0.01em;
+}
+
+.submit-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(20, 129, 238, 0.2);
+}
+
+.submit-btn:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+    transform: none;
+}
+
+.voice-trigger {
+    background-color: var(--secondary-color);
+    color: white;
+    padding: 1rem 2rem;
+    border: none;
+    border-radius: 50px;
+    font-size: 1.2rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    margin-bottom: 2rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+}
+
+.voice-trigger:hover {
+    background-color: var(--primary-color);
+    transform: scale(1.05);
+}
+
+.voice-trigger.listening {
+    background-color: var(--accent-color);
+    animation: pulse 1.5s infinite;
+}
+
+.status-message {
+    text-align: center;
+    margin: 1rem 0;
+    padding: 1rem;
+    border-radius: 10px;
+    background-color: #f8f9fa;
+    display: none;
+}
+
+.status-message.visible {
+    display: block;
+    animation: fadeIn 0.5s ease;
+}
+
+@keyframes pulse {
+    0% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.05);
+    }
+    100% {
+        transform: scale(1);
+    }
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .container {
+        padding: 1rem;
+    }
+
+    .header {
+        padding: 2rem 1rem;
+    }
+
+    .header h1 {
+        font-size: 2rem;
+    }
+
+    .modules-container {
+        grid-template-columns: 1fr;
+    }
+
+    .module-card,
+    .form-container,
+    .result-card,
+    .facility-card,
+    .interaction-card,
+    .stat-card {
+        padding: 1.5rem;
+        min-height: 280px;
+    }
+}

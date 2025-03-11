@@ -1,0 +1,551 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chiron - Hospital Locator</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css">
+    <link rel="stylesheet" href="/static/styles.css">
+    <style>
+        :root {
+            --text-primary: #2c3e50;
+            --text-secondary: #34495e;
+            --text-muted: #7f8c8d;
+            --border-color: #e2e8f0;
+            --primary-color: #3498db;
+            --secondary-color: #2ecc71;
+            --primary-color-dark: #217dbb;
+        }
+
+        .locator-form {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            padding: 2.5rem;
+            border-radius: 20px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+        }
+
+        .input-group {
+            margin-bottom: 2rem;
+        }
+
+        .input-group label {
+            display: block;
+            margin-bottom: 0.75rem;
+            color: var(--text-primary);
+            font-weight: 500;
+            font-size: 1.1rem;
+        }
+
+        .input-group input {
+            width: 100%;
+            padding: 1.25rem;
+            border: 2px solid var(--border-color);
+            border-radius: 12px;
+            font-family: inherit;
+            font-size: 1rem;
+            line-height: 1.6;
+            transition: all 0.3s ease;
+        }
+
+        .input-group input:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
+        }
+
+        .submit-btn {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            padding: 1.2rem 2rem;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            width: 100%;
+            font-size: 1.1rem;
+            font-weight: 500;
+            letter-spacing: 0.01em;
+        }
+
+        .submit-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(52, 152, 219, 0.2);
+        }
+
+        .submit-btn:disabled {
+            opacity: 0.7;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .back-btn {
+            display: inline-flex;
+            align-items: center;
+            padding: 0.75rem 1.25rem;
+            color: var(--text-primary);
+            text-decoration: none;
+            margin-bottom: 1.5rem;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            font-weight: 500;
+        }
+
+        .back-btn:hover {
+            background: rgba(0, 0, 0, 0.05);
+        }
+
+        .back-btn i {
+            margin-right: 0.75rem;
+            font-size: 1.1rem;
+        }
+
+        #map {
+            height: 500px;
+            width: 100%;
+            border-radius: 16px;
+            margin-top: 2rem;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+        }
+
+        .header {
+            text-align: center;
+            padding: 3rem 2rem;
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            border-radius: 0 0 30px 30px;
+            margin-bottom: 2.5rem;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .header h1 {
+            font-size: 2.75rem;
+            font-weight: 600;
+            margin: 0 0 1rem;
+            letter-spacing: -0.03em;
+        }
+
+        .header p {
+            font-size: 1.25rem;
+            opacity: 0.95;
+            margin: 0;
+            font-weight: 300;
+        }
+
+        .result-container {
+            margin-top: 2.5rem;
+            display: none;
+            max-width: 800px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .result-container.visible {
+            display: block;
+            animation: fadeIn 0.5s ease;
+        }
+
+        .facility-stats {
+            display: flex;
+            gap: 2rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .stat-card {
+            flex: 1;
+            background: white;
+            padding: 1.5rem;
+            border-radius: 12px;
+            text-align: center;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+        }
+
+        .stat-card i {
+            font-size: 2rem;
+            color: var(--primary-color);
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-card .number {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .stat-card .label {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+
+        .input-hint {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            margin-top: 0.5rem;
+        }
+
+        .facility-popup {
+            min-width: 250px;
+            max-width: 300px;
+            padding: 10px;
+        }
+        
+        .facility-popup h4 {
+            color: var(--text-primary);
+            margin: 0 0 10px 0;
+            font-size: 16px;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 5px;
+        }
+        
+        .facility-popup p {
+            margin: 5px 0;
+            font-size: 14px;
+            color: var(--text-secondary);
+        }
+        
+        .facility-popup .label {
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+        
+        .facility-popup .value {
+            color: var(--text-secondary);
+        }
+        
+        .facility-popup .actions {
+            margin-top: 10px;
+            padding-top: 10px;
+            border-top: 1px solid var(--border-color);
+        }
+        
+        .facility-popup .actions a {
+            display: inline-block;
+            padding: 5px 10px;
+            background-color: var(--primary-color);
+            color: white;
+            text-decoration: none;
+            border-radius: 4px;
+            font-size: 14px;
+            transition: background-color 0.2s;
+        }
+        
+        .facility-popup .actions a:hover {
+            background-color: var(--primary-color-dark);
+        }
+        
+        .facility-popup .emergency {
+            color: #e74c3c;
+            font-weight: 600;
+        }
+        
+        .facility-popup .website {
+            color: var(--primary-color);
+            text-decoration: none;
+        }
+        
+        .facility-popup .website:hover {
+            text-decoration: underline;
+        }
+
+        @media (max-width: 768px) {
+            .locator-form {
+                padding: 1.5rem;
+                margin: 1rem;
+            }
+
+            .header {
+                padding: 2rem 1.5rem;
+            }
+
+            .header h1 {
+                font-size: 2rem;
+            }
+
+            .facility-stats {
+                flex-direction: column;
+                gap: 1rem;
+            }
+
+            #map {
+                height: 300px;
+            }
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="/" class="back-btn">
+            <i class="fas fa-arrow-left"></i>Back to Home
+        </a>
+
+        <header class="header">
+            <h1>Hospital Locator</h1>
+            <p>Find nearby hospitals, clinics, and pharmacies in your area</p>
+        </header>
+
+        <div class="locator-form">
+            <div class="input-group">
+                <label for="address">Your Location</label>
+                <input type="text" id="address" placeholder="Enter your address or location">
+                <p class="input-hint">Enter a complete address, city, or landmark for better results</p>
+            </div>
+
+            <div class="input-group">
+                <label for="radius">Search Radius (meters)</label>
+                <input type="number" id="radius" value="5000" min="1000" max="10000" step="500">
+                <p class="input-hint">Choose between 1000 to 10000 meters (default: 5000)</p>
+            </div>
+
+            <button id="submitBtn" class="submit-btn">Find Medical Facilities</button>
+            
+            <div id="loadingSpinner">
+                <div class="spinner"></div>
+                <p class="spinner-text">Searching for nearby medical facilities...</p>
+            </div>
+        </div>
+
+        <div id="resultContainer" class="result-container">
+            <div class="facility-stats">
+                <div class="stat-card">
+                    <i class="fas fa-hospital"></i>
+                    <div id="hospitalCount" class="number">0</div>
+                    <div class="label">Hospitals Found</div>
+                </div>
+                <div class="stat-card">
+                    <i class="fas fa-pills"></i>
+                    <div id="pharmacyCount" class="number">0</div>
+                    <div class="label">Pharmacies Found</div>
+                </div>
+            </div>
+            <div id="map"></div>
+        </div>
+    </div>
+
+    <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+    <script>
+        // Initialize map container
+        let map = null;
+        let mapContainer = document.getElementById('map');
+        let defaultCenter = [20.5937, 78.9629]; // Center of India
+        let defaultZoom = 4;
+
+        // Initialize empty map
+        function initMap(center = defaultCenter, zoom = defaultZoom) {
+            console.log('Initializing map with center:', center, 'zoom:', zoom);
+            
+            // Clean up existing map if any
+            if (map) {
+                console.log('Removing existing map');
+                map.remove();
+                map = null;
+            }
+
+            // Create new map
+            console.log('Creating new map');
+            map = L.map('map').setView(center, zoom);
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: ' OpenStreetMap contributors'
+            }).addTo(map);
+
+            return map;
+        }
+
+        // Create custom marker icons
+        function createMarkerIcon(type) {
+            console.log('Creating marker icon for type:', type);
+            const color = type === 'hospital' ? '#27ae60' : type === 'pharmacy' ? '#3498db' : '#e74c3c';
+            const icon = type === 'hospital' ? 'hospital' : type === 'pharmacy' ? 'pills' : 'map-marker-alt';
+            const size = type === 'user' ? 24 : 20;
+
+            return L.divIcon({
+                className: 'custom-div-icon',
+                html: `<i class="fas fa-${icon}" style="color: ${color}; font-size: ${size}px;"></i>`,
+                iconSize: [size, size],
+                iconAnchor: [size/2, size/2]
+            });
+        }
+
+        // Format facility details for popup
+        function formatFacilityDetails(facility) {
+            const details = facility.details;
+            let content = `
+                <div class="facility-popup">
+                    <h4>${facility.name}</h4>
+                    
+                    <p><span class="label">Type:</span> <span class="value">${facility.type.charAt(0).toUpperCase() + facility.type.slice(1)}</span></p>
+                    <p><span class="label">Distance:</span> <span class="value">${facility.distance} km</span></p>
+                    
+                    ${details.address !== 'Address not available' ? 
+                        `<p><span class="label">Address:</span> <span class="value">${details.address}</span></p>` : ''}
+                    
+                    ${details.phone !== 'Not available' ? 
+                        `<p><span class="label">Phone:</span> <span class="value">${details.phone}</span></p>` : ''}
+                    
+                    ${details.opening_hours !== 'Not specified' ? 
+                        `<p><span class="label">Hours:</span> <span class="value">${details.opening_hours}</span></p>` : ''}
+                    
+                    ${details.emergency !== 'Unknown' ? 
+                        `<p class="emergency">Emergency: ${details.emergency === 'yes' ? 'Available 24/7' : 'Not available'}</p>` : ''}
+                    
+                    ${details.healthcare !== 'General' ? 
+                        `<p><span class="label">Specialty:</span> <span class="value">${details.healthcare}</span></p>` : ''}
+                    
+                    ${details.wheelchair !== 'Unknown' ? 
+                        `<p><span class="label">Wheelchair Access:</span> <span class="value">${details.wheelchair}</span></p>` : ''}
+                    
+                    <div class="actions">
+                        <a href="${facility.directions_url}" target="_blank">Get Directions</a>
+                        ${details.website ? 
+                            `<a href="${details.website}" target="_blank" class="website" style="margin-left: 10px;">Visit Website</a>` : ''}
+                    </div>
+                </div>
+            `;
+            return content;
+        }
+
+        // Add markers to map
+        function addMarkers(data) {
+            console.log('Adding markers with data:', data);
+            
+            if (!map) {
+                console.error('Map not initialized!');
+                return;
+            }
+
+            // Add user location marker with address
+            if (data.user_location && typeof data.user_location.lat === 'number' && typeof data.user_location.lon === 'number') {
+                console.log('Adding user location marker at:', data.user_location);
+                L.marker([data.user_location.lat, data.user_location.lon], {
+                    icon: createMarkerIcon('user')
+                }).addTo(map).bindPopup(`
+                    <div class="facility-popup">
+                        <h4>Your Location</h4>
+                        <p>${data.user_location.address}</p>
+                    </div>
+                `);
+            } else {
+                console.error('Invalid user location:', data.user_location);
+            }
+
+            // Add facility markers
+            if (data.facilities && Array.isArray(data.facilities)) {
+                console.log('Adding', data.facilities.length, 'facility markers');
+                data.facilities.forEach((facility, index) => {
+                    console.log('Processing facility:', index, facility);
+                    if (facility && typeof facility.lat === 'number' && typeof facility.lon === 'number') {
+                        const marker = L.marker([facility.lat, facility.lon], {
+                            icon: createMarkerIcon(facility.type)
+                        });
+                        
+                        marker.bindPopup(formatFacilityDetails(facility));
+                        marker.addTo(map);
+                        console.log('Added marker for facility:', facility.name);
+                    } else {
+                        console.error('Invalid facility coordinates:', facility);
+                    }
+                });
+            } else {
+                console.error('No facilities data or invalid format:', data.facilities);
+            }
+        }
+
+        // Update facility statistics
+        function updateStats(stats) {
+            console.log('Updating stats:', stats);
+            document.getElementById('hospitalCount').textContent = stats.hospitals || 0;
+            document.getElementById('pharmacyCount').textContent = stats.pharmacies || 0;
+        }
+
+        // Initialize map on page load
+        document.addEventListener('DOMContentLoaded', () => {
+            console.log('Page loaded, initializing map');
+            initMap();
+        });
+
+        // Handle form submission
+        document.getElementById('submitBtn').addEventListener('click', async () => {
+            const address = document.getElementById('address').value.trim();
+            const radius = document.getElementById('radius').value;
+
+            if (!address) {
+                alert('Please enter your location to find nearby medical facilities.');
+                return;
+            }
+
+            console.log('Searching for facilities near:', address, 'with radius:', radius);
+
+            // Show loading state
+            document.getElementById('loadingSpinner').style.display = 'block';
+            document.getElementById('submitBtn').disabled = true;
+            document.getElementById('resultContainer').style.display = 'none';
+
+            try {
+                console.log('Sending request to server...');
+                const response = await fetch('/hospital-locator', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ address, radius })
+                });
+
+                const data = await response.json();
+                console.log('Received response:', data);
+                
+                if (data.error) {
+                    throw new Error(data.error);
+                }
+
+                if (!data.user_location || typeof data.user_location.lat !== 'number' || typeof data.user_location.lon !== 'number') {
+                    throw new Error('Invalid location data received from server');
+                }
+
+                // Update map
+                console.log('Initializing map with user location');
+                initMap([data.user_location.lat, data.user_location.lon], 14);
+                
+                console.log('Adding markers to map');
+                addMarkers(data);
+                
+                console.log('Updating statistics');
+                updateStats(data.stats);
+
+                // Show results
+                document.getElementById('resultContainer').style.display = 'block';
+                document.getElementById('resultContainer').classList.add('visible');
+
+            } catch (error) {
+                console.error('Error:', error);
+                alert(error.message || 'An error occurred while searching for medical facilities. Please try again.');
+                
+                // Reset map to default view
+                console.log('Resetting map to default view');
+                initMap();
+            } finally {
+                // Reset loading state
+                document.getElementById('loadingSpinner').style.display = 'none';
+                document.getElementById('submitBtn').disabled = false;
+            }
+        });
+    </script>
+</body>
+</html>
